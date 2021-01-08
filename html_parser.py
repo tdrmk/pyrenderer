@@ -20,7 +20,7 @@ class Token:
 
     def __str__(self):
         attributes = ' '.join(f'{key}="{value}"' for key, value in self.attributes.items())
-        return f'Token[{self.line}, {self.column}] {self.kind} "{self.value}" {attributes}'
+        return f'TOKEN {self.kind} (line {self.line}, column {self.column}) {self.value!r} {attributes}'
 
 
 def tokenize(html):
@@ -49,13 +49,13 @@ def tokenize(html):
             value = re.sub(r'\s+', r' ', value).strip()  # remove unnecessary spacing
             yield Token(kind, value, line, column)
         elif kind in ['START', 'CLOSING']:
-            tag = re.match(rf'<(?P<TAG>[\w-]+)(\s+{attribute})*\s*/?>', value).group('TAG')
+            tag = re.match(rf'<(?P<TAG>[\w-]+)(\s+{attribute})*\s*/?>', value).group('TAG').lower()  # lower casing
             token = Token(kind, tag, line, column)
-            for m in re.finditer(r'''(?P<PROPERTY>[\w-]+)=(?P<VALUE>[\w-]+|'[\w\s-]+'|"[\w\s-]+")''', value):
-                token[m.group('PROPERTY')] = m.group('VALUE').strip("\'\"")
+            for n in re.finditer(r'''(?P<PROPERTY>[\w-]+)=(?P<VALUE>[\w-]+|'[\w\s-]+'|"[\w\s-]+")''', value):
+                token[n.group('PROPERTY').lower()] = n.group('VALUE').strip("\'\"").lower()  # lower casing
             yield token
         elif kind == 'END':
-            tag = re.match(rf'</(?P<TAG>[\w-]+)\s*>', value).group('TAG')
+            tag = re.match(rf'</(?P<TAG>[\w-]+)\s*>', value).group('TAG').lower()  # lower casing
             yield Token(kind, tag, line, column)
         else:
             raise Exception(f'Unknown token {value!r} at line {line} column {column}.')
@@ -166,3 +166,15 @@ def parse(html):
 
     assert root_node.tag == 'html'
     return root_node
+
+
+def get_page_title(dom: DOMNode):
+    assert dom.tag == 'html'
+    for node in dom.children:
+        if isinstance(node, DOMNode) and node.tag == 'head':
+            for h_node in node.children:
+                if isinstance(h_node, DOMNode) and h_node.tag == 'title':
+                    for t_node in h_node.children:
+                        if isinstance(t_node, TextNode):
+                            return t_node.text
+    return 'Default Title'
