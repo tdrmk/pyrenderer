@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Union
-from utils import get_line_no
+from utils import get_line_no, format_styles
 import re
 
 
@@ -8,7 +8,7 @@ class Token:
     def __init__(self, kind, value, line, column):
         self.kind = kind
         self.value = value
-        self.attributes = {}
+        self.attributes = {}  # attribute keys, values are in lower case
         self.line = line
         self.column = column
 
@@ -68,7 +68,7 @@ class DOMNode:
         self.token = token
         self.parent = None  # will be set when added as a child
         self.children = []
-        self.styles = {}  # will be populated in the render step
+        self.styles = {}  # will be populated in the attachment step
 
     @property
     def id(self):
@@ -87,7 +87,7 @@ class DOMNode:
         self.children.remove(node)
 
     def __str__(self):
-        return f'''DOMNode {self.tag} {self.id} {self.classes if self.classes else ''}'''
+        return f'''DOMNode {self.tag} {self.id} {self.classes if self.classes else ''} {format_styles(self.styles)}'''
 
 
 class TextNode:

@@ -73,6 +73,7 @@ def parse(css, cssom=None):
         elif kind == 'RULE':
             css_rule = cssom[m.group('SELECTOR').lower()]
             for n in re.finditer(declaration, m.group('DECLARATIONS')):
+                # CSS Cascade rule in action
                 css_rule[n.group('PROPERTY').lower()] = n.group('VALUE').lower()
         elif kind == 'EXCEPTION':
             print(f"Unexpected text `{m.group()!r}`")

@@ -1,3 +1,6 @@
+from css_properties import *
+
+
 def get_line_no(text: str, index: int):
     # Returns the line and column number of the given index.
     previous_text = text[:index + 1]
@@ -28,3 +31,18 @@ def print_tree(root):
             pass
 
     __print(root)
+
+
+def format_styles(styles: dict):
+    # converts parsed style (in attachment step) into string
+    if not styles:
+        return ''
+    return f'width: {styles[WIDTH]}, height: {styles[HEIGHT]}, ' \
+        f'margin: {styles[MARGIN_TOP]} {styles[MARGIN_RIGHT]} {styles[MARGIN_BOTTOM]} {styles[MARGIN_LEFT]}, ' \
+        f'padding: {styles[PADDING_TOP]} {styles[PADDING_RIGHT]} {styles[PADDING_BOTTOM]} {styles[PADDING_LEFT]}, ' \
+        f'border: {styles[BORDER_TOP]} {styles[BORDER_RIGHT]} {styles[BORDER_BOTTOM]} {styles[BORDER_LEFT]} ' \
+        f'{styles[BORDER_COLOR]}, ' \
+        f'display: {styles[DISPLAY]}, ' \
+        f'position: {styles[POSITION]} {styles[TOP]} {styles[RIGHT]} {styles[BOTTOM]} {styles[LEFT]}, '\
+        f'font: {styles[FONT_SIZE]} {styles[FONT_WEIGHT]} {styles[FONT_STYLE]}, ' \
+        f'color: {styles[COLOR]} {styles[BACKGROUND_COLOR]}'
