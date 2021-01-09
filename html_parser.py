@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union
+from typing import Union, List
 from utils import get_line_no, format_styles
 import re
 
@@ -62,6 +62,8 @@ def tokenize(html):
 
 
 class DOMNode:
+    children: List[Union[DOMNode, TextNode]]
+
     def __init__(self, tag, attributes, token):
         self.tag = tag
         self.attributes = attributes
