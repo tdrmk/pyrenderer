@@ -40,6 +40,15 @@ def parse_style(styles: dict):
     return parsed_styles
 
 
+def inherit_style(node: DOMNode):
+    # Inherit's parents style when value is `inherit` for inheritable properties
+    for prop in INHERITABLE_PROPERTIES:
+        if node.styles[prop] == 'inherit':
+            # If node's property is inherit, then picks up value from parent
+            assert node.parent and node.parent.styles[prop] != 'inherit'
+            node.styles[prop] = node.parent.styles[prop]
+
+
 def compute_style(node: DOMNode, cssom: CSSOM):
     # CSS Specificity and Cascade (partly)
     # apply universal styles
@@ -70,11 +79,7 @@ def compute_style(node: DOMNode, cssom: CSSOM):
                 node.styles[prop] = default_value
 
     # CSS Inheritance
-    for prop in INHERITABLE_PROPERTIES:
-        if node.styles[prop] == 'inherit':
-            # If node's property is inherit, then picks up value from parent
-            assert node.parent and node.parent.styles[prop] != 'inherit'
-            node.styles[prop] = node.parent.styles[prop]
+    inherit_style(node)
 
 
 def attach_styles(dom: DOMNode, cssom: CSSOM):
