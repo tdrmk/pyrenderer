@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pygame.font import SysFont, init
 from collections import namedtuple
-from typing import List
+from typing import List, Union
 from itertools import chain
 
 import re
@@ -170,16 +170,18 @@ def construct_render_lines(block_object: RenderBlock, available_width: int):
     assert block_object.children and \
            all(not isinstance(child_ro, RenderBlock) for child_ro in block_object.children)
 
-    text_objects = []  # list of text object descendants in `block_object` in in-order depth first traversal
-    render_objects = [block_object]  # Note `block_object` will be the only expected block object in this list
-    # `render_objects` will contain inline objects from which text objects must be obtained recursively
-    while render_objects:
-        ro = render_objects.pop(0)  # In-order Depth first traversal to obtain the text objects
-        # Obtain all the text element children of inline element
-        text_objects.extend(child_ro for child_ro in ro.children if isinstance(child_ro, RenderText))
-        # Descendants of inline objects need traversal
-        inline_objects = [child_ro for child_ro in ro.children if isinstance(child_ro, RenderInline)]
-        render_objects = inline_objects + render_objects
+    def get_text_objects(ro: Union[RenderBlock, RenderInline]):
+        # Recursively obtain the text objects within the given inline object
+        t_objects = []
+        for child_ro in ro.children:
+            if isinstance(child_ro, RenderText):
+                t_objects.append(child_ro)
+            else:
+                assert isinstance(child_ro, RenderInline)
+                t_objects.extend(get_text_objects(child_ro))
+        return t_objects
+
+    text_objects = get_text_objects(block_object)
 
     # Aggregate words from each of the text objects
     word_objects = list(chain.from_iterable(compute_word_objects(text_object) for text_object in text_objects))
