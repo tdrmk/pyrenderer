@@ -1,8 +1,9 @@
 from __future__ import annotations
 from html_parser import DOMNode, TextNode
 from typing import Union, List, Optional, TYPE_CHECKING
-from css_properties import DISPLAY, POSITION, FONT_SIZE, FONT_WEIGHT, FONT_STYLE
+from css_properties import *
 from box_model import BoxModel
+import re
 
 if TYPE_CHECKING:  # to prevent cycling dependency
     from text_layout import WordObject, RenderLines
@@ -65,6 +66,17 @@ class RenderBlock(RenderChildren):
     def __str__(self):
         return f'RenderBlock[{self.position}] {self.node}'
 
+    @property
+    def background_color(self):
+        background_color = self.node.styles[BACKGROUND_COLOR]
+        return background_color if re.match(r'^#[0-9a-f]{6}$', background_color) else None
+
+    @property
+    def border_color(self):
+        border_color = self.node.styles[BORDER_COLOR]
+        assert re.match(r'^#[0-9a-f]{6}$', border_color)
+        return border_color
+
 
 class RenderInline(RenderChildren):
     def __init__(self, node: DOMNode):
@@ -99,3 +111,14 @@ class RenderText(RenderObject):
     @property
     def font_style(self):
         return self.parent.node.styles[FONT_STYLE]
+
+    @property
+    def background_color(self):
+        background_color = self.parent.node.styles[BACKGROUND_COLOR]
+        return background_color if re.match(r'^#[0-9a-f]{6}$', background_color) else None
+
+    @property
+    def color(self):
+        color = self.parent.node.styles[COLOR]
+        assert re.match(r'^#[0-9a-f]{6}$', color)
+        return color

@@ -84,3 +84,43 @@ class BoxModel:
     def __str__(self):
         return f'BoxModel(content_size=({self.content_width, self.content_height}), ' \
             f'box_size=({self.box_width}, {self.box_height}))'
+
+    # These properties are set during paint phase
+    # these are absolute positions of the entire box (including margin)
+    left: int
+    top: int
+
+    @property
+    def right(self):
+        return self.left + self.box_width
+
+    @property
+    def bottom(self):
+        return self.top + self.box_height
+
+    # Properties below are used in the paint phase once left, and top are set
+    @property
+    def content_left(self):
+        return self.left + self.margin_left + self.border_left + self.padding_left
+
+    @property
+    def content_top(self):
+        return self.top + self.margin_top + self.border_top + self.padding_top
+
+    # Rectangles used for painting layouts
+    @property
+    def content_rect(self):
+        return self.content_left, self.content_top, self.content_width, self.content_height
+
+    @property
+    def padding_rect(self):
+        return self.content_left - self.padding_left, self.content_top - self.padding_top, \
+               self.content_width + self.padding_width, self.content_height + self.padding_height
+
+    @property
+    def border_rect(self):
+        return self.left + self.margin_left, self.top + self.margin_top, self.width, self.height
+
+    @property
+    def box_rect(self):
+        return self.left, self.top, self.box_width, self.box_height
