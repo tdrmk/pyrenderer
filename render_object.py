@@ -2,6 +2,7 @@ from __future__ import annotations
 from html_parser import DOMNode, TextNode
 from typing import Union, List, Optional, TYPE_CHECKING
 from css_properties import DISPLAY, POSITION, FONT_SIZE, FONT_WEIGHT, FONT_STYLE
+from box_model import BoxModel
 
 if TYPE_CHECKING:  # to prevent cycling dependency
     from text_layout import WordObject, RenderLines
@@ -43,7 +44,9 @@ class RenderChildren(RenderObject):
 
 class RenderBlock(RenderChildren):
     # Computed during the layout phase
+    # `lines_object` is defined when the descendants are all inline/text objects
     lines_object: Optional[RenderLines]
+    box_model: BoxModel
 
     def __init__(self, node: DOMNode):
         RenderChildren.__init__(self)
