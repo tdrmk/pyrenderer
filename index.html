@@ -1,0 +1,54 @@
+
+<!--
+    This is a sample page for demo purpose
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Demo Page</title>
+</head>
+<body>
+    <h1>This is a sample page, testing out positioning features! See Below</h1>
+    <p> Supported positioning are static(default), relative, absolute, and fixed.</p>
+    <div class="a relative">
+        This is a text element inside relative element
+        <span>This is span child of relative element</span>
+        <span>This is the second span of relative element</span>
+        <div class="b">
+            This is a block child of the relative element
+            <div class="c">
+               This is block child of the block
+               child element of relative element
+            </div>
+        </div>
+        <span>This is yet another span child of relative element</span>
+        <span>This is a the final span child of relative element</span>
+        <div class="absolute-parent">
+            This is block child of the the parent which will contains a absolute element.
+            <div class="absolute move b">
+                This is absolute element, within a non-positioned block element.
+                <div class="c">
+                    This is a child of the absolute element
+                </div>
+                <div>
+                     <div class="absolute move b">
+                        This is also a absolute element
+                        <span>
+                            Apart from the other one
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="b">
+             <div class="c fixed">
+                 This is a fixed element! Adding more content to make the string longer
+             </div>
+        </div>
+        End of relative element.
+    </div>
+</body>
+</html>
+

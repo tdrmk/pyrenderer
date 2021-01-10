@@ -1,0 +1,64 @@
+.fixed {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    width: 400px;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+
+html {
+    background-color: #ffffff;
+}
+
+body {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+
+div {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+
+    border-left-width: 10px;
+    border-right-width: 10px;
+    border-bottom-width: 10px;
+    border-top-width: 10px;
+
+    border-color: #ffa500;
+}
+.a {
+    width: 90%;
+    background-color: #800080;
+}
+
+.b {
+    background-color: #4b0082;
+}
+
+.c {
+    background-color: #008000;
+}
+
+.move {
+    width: 50%;
+    bottom: 0px;
+    right: 0px;
+}
+
+span {
+    font-size: 24px;
+    color: #ffffff;
+}
