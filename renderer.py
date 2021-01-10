@@ -18,7 +18,6 @@ def anonymous_block(parent_node: DOMNode):
 
 
 def construct_render_tree(dom: DOMNode):
-    # TODO: Fix issue in DF traversal, but works
     # Returns a render tree
     #   - with no display none elements
     #   - block objects contain either all inline/text objects or block objects
@@ -35,6 +34,7 @@ def construct_render_tree(dom: DOMNode):
     render_objects = [root_ro]
     while render_objects:
         ro = render_objects.pop(0)  # Depth first traversal
+        objects_needing_exploration = []    # To maintain in-order traversal
         for node in ro.node.children:
             if isinstance(node, TextNode):
                 # text is a leaf node, insert it to the parent.
@@ -66,12 +66,12 @@ def construct_render_tree(dom: DOMNode):
                     ancestor_ro.insert_after(block_ro, inline_sibling)
                 else:
                     ro.add_child(block_ro)
-                render_objects = [block_ro] + render_objects
-
+                objects_needing_exploration.append(block_ro)
             elif node.styles[DISPLAY] == 'inline':
                 inline_ro = RenderInline(node)
                 ro.add_child(inline_ro)
-                render_objects = [inline_ro] + render_objects
+                objects_needing_exploration.append(inline_ro)
+        render_objects = objects_needing_exploration + render_objects
 
     # Move absolute and fixed render blocks up the ancestor chain
     # absolute block elements become the children of nearest positioned ancestor
@@ -81,6 +81,7 @@ def construct_render_tree(dom: DOMNode):
     render_objects = [root_ro]
     while render_objects:
         ro = render_objects.pop(0)  # Depth first traversal
+        objects_needing_exploration = []
         for child_ro in ro.children:
             if not isinstance(child_ro, RenderBlock):
                 continue
@@ -104,7 +105,8 @@ def construct_render_tree(dom: DOMNode):
                     # move it to the viewport (html)
                     root_ro.add_child(child_ro)
 
-            render_objects = [child_ro] + render_objects
+            objects_needing_exploration.append(child_ro)
+        render_objects = objects_needing_exploration + render_objects
 
     # When blocks objects have both inline and block objects as children
     # we group inline blocks ino an anonymous block object
@@ -118,6 +120,7 @@ def construct_render_tree(dom: DOMNode):
     render_objects = [root_ro]
     while render_objects:
         ro = render_objects.pop(0)  # Depth first traversal
+        objects_needing_exploration = []
         if ro.children and any(isinstance(child_ro, RenderBlock) for child_ro in ro.children) and \
                 any(not isinstance(child_ro, RenderBlock) for child_ro in ro.children):
             # If has children that's a mixture of block and inline elements
@@ -141,6 +144,7 @@ def construct_render_tree(dom: DOMNode):
         # it will not trigger further recursion.
         for child_ro in ro.children:
             if isinstance(child_ro, RenderBlock):
-                render_objects = [child_ro] + render_objects
+                objects_needing_exploration.append(child_ro)
+        render_objects = objects_needing_exploration + render_objects
 
     return root_ro
