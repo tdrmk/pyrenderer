@@ -34,7 +34,7 @@ def construct_render_tree(dom: DOMNode):
     render_objects = [root_ro]
     while render_objects:
         ro = render_objects.pop(0)  # Depth first traversal
-        objects_needing_exploration = []    # To maintain in-order traversal
+        objects_needing_exploration = []  # To maintain in-order traversal
         for node in ro.node.children:
             if isinstance(node, TextNode):
                 # text is a leaf node, insert it to the parent.
@@ -82,7 +82,7 @@ def construct_render_tree(dom: DOMNode):
     while render_objects:
         ro = render_objects.pop(0)  # Depth first traversal
         objects_needing_exploration = []
-        for child_ro in ro.children:
+        for child_ro in ro.children[:]:  # Note children can be removed during traversal
             if not isinstance(child_ro, RenderBlock):
                 continue
 
