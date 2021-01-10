@@ -1,7 +1,10 @@
 from __future__ import annotations
 from html_parser import DOMNode, TextNode
-from typing import Union, List, Optional
-from css_properties import DISPLAY, POSITION
+from typing import Union, List, Optional, TYPE_CHECKING
+from css_properties import DISPLAY, POSITION, FONT_SIZE, FONT_WEIGHT, FONT_STYLE
+
+if TYPE_CHECKING:  # to prevent cycling dependency
+    from text_layout import WordObject, RenderLines
 
 
 class RenderObject:
@@ -39,6 +42,9 @@ class RenderChildren(RenderObject):
 
 
 class RenderBlock(RenderChildren):
+    # Computed during the layout phase
+    lines_object: Optional[RenderLines]
+
     def __init__(self, node: DOMNode):
         RenderChildren.__init__(self)
 
@@ -70,6 +76,7 @@ class RenderInline(RenderChildren):
 
 class RenderText(RenderObject):
     node: TextNode
+    words: List[WordObject]  # Computed in the layout phase
 
     def __init__(self, node: TextNode):
         self.node = node
@@ -77,15 +84,15 @@ class RenderText(RenderObject):
     def __str__(self):
         return f'RenderText {self.node}'
 
+    @property
+    def font_size(self):
+        font_size = self.parent.node.styles[FONT_SIZE]
+        return int(font_size[:-2])
 
-# These RenderObjects will be utilized during layout and paint phases
-class RenderLines(RenderChildren):
-    children: List[LineBox]
+    @property
+    def font_weight(self):
+        return self.parent.node.styles[FONT_WEIGHT]
 
-
-class LineBox(RenderChildren):
-    children: List[InlineBox]
-
-
-class InlineBox(RenderObject):
-    pass
+    @property
+    def font_style(self):
+        return self.parent.node.styles[FONT_STYLE]

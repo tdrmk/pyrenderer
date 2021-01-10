@@ -18,6 +18,7 @@ def anonymous_block(parent_node: DOMNode):
 
 
 def construct_render_tree(dom: DOMNode):
+    # TODO: Fix issue in DF traversal, but works
     # Returns a render tree
     #   - with no display none elements
     #   - block objects contain either all inline/text objects or block objects
