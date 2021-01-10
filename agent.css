@@ -1,0 +1,156 @@
+/*
+    Defines the browser CSS, ie, default styling.
+    Almost all values can be overridden by user CSS.
+*/
+* {
+    margin-right: 0px;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+    padding-right: 0px;
+    padding-left: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+
+    border-right-width: 0px;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+
+    width: auto;
+    height: auto;
+
+    color: inherit;
+    background-color: inherit;
+    border-color: inherit;
+
+    font-size: inherit;
+    font-weight: inherit;
+    font-style: inherit;
+
+    /* This ensures unknown elements are not rendered */
+    display: none;
+    position: static;
+
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+}
+
+/* supported block elements */
+
+html {
+    /*
+    These properties can't be modified
+    html is used as viewport, must be position: relative and display: block
+     */
+    display: block;
+    position: relative;
+
+    /* These can be changed, however cannot be inherit */
+    font-size: 16px;
+    font-weight: normal;
+    font-style: normal;
+
+    color: #000000;
+    background-color: transparent;
+    border-color: #000000;
+
+    /*
+    Can be overridden.
+    however not this would impact how fixed elements behaves.
+    Also setting top, left, right, bottom will impact fixed elements.
+    */
+    height: 100%;
+}
+
+body {
+    display: block;
+    margin-top: 8px;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+div {
+    display: block;
+}
+
+p {
+    display: block;
+    font-size: 16px;
+}
+
+h1 {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+h2 {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h3 {
+    display: block;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+h4 {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+h5 {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+h6 {
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+hr {
+    display: block;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+}
+
+/* inline-block not yet supported */
+
+/* supported inline elements */
+
+a {
+    display: inline;
+    color: #0000ff;
+}
+
+span {
+    display: inline;
+}
+
+b {
+    display: inline;
+    font-weight: bold;
+}
+
+i {
+    display: inline;
+    font-style: italic;
+}
+
+button {
+    display: inline;
+}
+
