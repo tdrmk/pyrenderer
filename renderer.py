@@ -63,6 +63,8 @@ def construct_render_tree(dom: DOMNode):
                         ancestor_ro, inline_sibling = ancestor_ro.parent, ancestor_ro
                         assert ancestor_ro
                     # insert into the ancestor children after inline_sibling
+                    assert ancestor_ro.node.styles[DISPLAY] == 'block'
+                    assert inline_sibling.node.styles[DISPLAY] == 'inline'
                     ancestor_ro.insert_after(block_ro, inline_sibling)
                 else:
                     ro.add_child(block_ro)
@@ -146,5 +148,29 @@ def construct_render_tree(dom: DOMNode):
             if isinstance(child_ro, RenderBlock):
                 objects_needing_exploration.append(child_ro)
         render_objects = objects_needing_exploration + render_objects
+
+    # assertions to make sure that render tree meets specified expectations
+    render_objects = [root_ro]
+    while render_objects:  # Any traversal would do
+        ro = render_objects.pop(0)
+        if isinstance(ro, RenderText):  # no assertions on render text
+            continue
+        if isinstance(ro, RenderBlock) and ro.children:
+            # all children are either block or inline/text
+            assert all(isinstance(child, RenderBlock) for child in ro.children) or \
+                   all(not isinstance(child, RenderBlock) for child in ro.children)
+            if all(isinstance(child, RenderBlock) for child in ro.children):
+                for child in ro.children:
+                    assert isinstance(child, RenderBlock)
+                    if child.position == 'absolute':
+                        # absolute blocks are children of positioned blocks
+                        assert ro.is_positioned
+                    if child.position == 'fixed':
+                        # fixed blocks are children of viewport
+                        assert ro == root_ro
+        if isinstance(ro, RenderInline) and ro.children:
+            # all children are inline/text
+            assert all(not isinstance(child, RenderBlock) for child in ro.children)
+        render_objects = ro.children + render_objects
 
     return root_ro
