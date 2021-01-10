@@ -21,6 +21,7 @@ html_file = args.html
 style_sheet_files = ['agent.css'] + args.css
 DEFAULT_BROWSER_BACKGROUND = (255, 255, 255)
 WIDTH, HEIGHT = 1000, 600
+SCROLL_SPEED = 1
 
 # Make sure all specified files exists
 for file in [html_file] + style_sheet_files:
@@ -63,7 +64,10 @@ def main_loop(render_tree, title, width, height, fps=60):
     pygame.display.set_caption(title)
     clock = pygame.time.Clock()
 
+    scroll_top, scroll_left = 0, 0
+    container_rect = None
     run = True
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
@@ -71,8 +75,22 @@ def main_loop(render_tree, title, width, height, fps=60):
 
         win.fill(DEFAULT_BROWSER_BACKGROUND)
         # just paint the render tree onto `win`
-        paint.paint_layout(win, render_tree)
+        container_rect = paint.paint_layout(win, render_tree, scroll_left, scroll_top)
         pygame.display.update()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            scroll_top -= SCROLL_SPEED
+            scroll_top = max(scroll_top, height - container_rect.bottom)
+        if keys[pygame.K_DOWN]:
+            scroll_top += SCROLL_SPEED
+            scroll_top = min(scroll_top, container_rect.top)
+        if keys[pygame.K_LEFT]:
+            scroll_left -= SCROLL_SPEED
+            scroll_left = max(scroll_left, width - container_rect.right)
+        if keys[pygame.K_RIGHT]:
+            scroll_left += SCROLL_SPEED
+            scroll_left = min(scroll_left, container_rect.left)
 
         clock.tick(fps)
 

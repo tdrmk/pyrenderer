@@ -40,11 +40,13 @@ def paint_render_lines(win: pygame.Surface, render_lines: RenderLines, left: int
         line_offset += line_height
 
 
-def paint_box_model(win: pygame.Surface, bm: BoxModel, ro: RenderBlock):
+def paint_box_model(win: pygame.Surface, bm: BoxModel, ro: RenderBlock, x_offset=0, y_offset=0):
+    # x_offset and y_offset to facilitate scrolling behaviour, keep it zero for no scroll
     # Draw background (including content and padding) and border
-    if ro.background_color:
-        # Fill with background color
-        pygame.draw.rect(win, pygame.Color(ro.background_color), bm.padding_rect, 0)
+    if ro.background_color:  # Fill with background color
+        # compute the background rect by moving by offset for scroll
+        scrolled_padding_rect = pygame.Rect(bm.padding_rect).move(x_offset, y_offset)
+        pygame.draw.rect(win, pygame.Color(ro.background_color), scrolled_padding_rect, 0)
 
     # For borders, we need to draw lines around the content
     # Note some correction factors are added to make borders precise
@@ -66,19 +68,28 @@ def paint_box_model(win: pygame.Surface, bm: BoxModel, ro: RenderBlock):
     ]
     for start_position, end_position, border_width in borders:
         if border_width > 0:
-            pygame.draw.line(win, pygame.Color(ro.border_color), start_position, end_position, border_width)
+            # compute the start and end positions by adding offsets for scroll
+            scrolled_start = start_position[0] + x_offset, start_position[1] + y_offset
+            scrolled_end = end_position[0] + x_offset, end_position[1] + y_offset
+            pygame.draw.line(win, pygame.Color(ro.border_color), scrolled_start, scrolled_end, border_width)
 
 
-def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
+def paint_layout(win: pygame.Surface, root_ro: RenderBlock, x_offset=0, y_offset=0, show_layout=False):
     # Paint the render tree after layout stage onto `win`
     # show_layout -> if enabled show only layout lines
+    # Use x_offset and y_offset to simulate scrolling behaviour
     def draw_block(ro: RenderBlock):
         if show_layout:
             paint_box_model_layout(win, ro.box_model)
         else:
-            paint_box_model(win, ro.box_model, ro)
+            # paint the box with specified offsets
+            _x_offset, _y_offset = x_offset, y_offset
+            if ro.position == 'fixed':  # override the offsets
+                _x_offset, _y_offset = 0, 0
+            paint_box_model(win, ro.box_model, ro, _x_offset, _y_offset)
             try:  # paint text if any
-                paint_render_lines(win, ro.lines_object, ro.box_model.content_left, ro.box_model.content_top)
+                paint_render_lines(win, ro.lines_object, ro.box_model.content_left + _x_offset,
+                                   ro.box_model.content_top + _y_offset)
             except AttributeError:  # thrown from ro.lines_object
                 pass
 
@@ -94,6 +105,9 @@ def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
     root_ro.box_model.top = 0
     root_ro.box_model.left = 0
 
+    # rectangle which contains the entire page
+    containing_rect = pygame.Rect(root_ro.box_model.box_rect)
+
     # Note: absolute and fixed elements may have static, relative and absolute elements
     # However will never have fixed elements and all fixed elements are children of viewport (html)
     # Paint all the blocks - priority based painting however
@@ -106,6 +120,7 @@ def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
                 # Compute the positions from parent
                 block.box_model.top = block.parent.box_model.content_top + block.box_model.relative_top
                 block.box_model.left = block.parent.box_model.content_left + block.box_model.relative_left
+                containing_rect.union_ip(block.box_model.box_rect)
 
             if block.position == 'static' or block.position == 'relative':
                 draw_block(block)
@@ -122,6 +137,7 @@ def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
             if block.parent:
                 block.box_model.top = block.parent.box_model.content_top + block.box_model.relative_top
                 block.box_model.left = block.parent.box_model.content_left + block.box_model.relative_left
+                containing_rect.union_ip(block.box_model.box_rect)
 
             draw_block(block)
             if all(isinstance(child_ro, RenderBlock) for child_ro in block.children):
@@ -138,6 +154,7 @@ def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
             if block.parent:
                 block.box_model.top = block.parent.box_model.content_top + block.box_model.relative_top
                 block.box_model.left = block.parent.box_model.content_left + block.box_model.relative_left
+                containing_rect.union_ip(block.box_model.box_rect)
 
             draw_block(block)
             if all(isinstance(child_ro, RenderBlock) for child_ro in block.children):
@@ -146,3 +163,7 @@ def paint_layout(win: pygame.Surface, root_ro: RenderBlock, show_layout=False):
                           child_ro.position in ['static', 'relative']] + blocks
                 absolute_blocks = [child_ro for child_ro in block.children if
                                    child_ro.position == 'absolute'] + absolute_blocks
+
+    # return rectangle that encloses the entire page
+    # useful for setting scrolling limits
+    return containing_rect
