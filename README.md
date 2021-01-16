@@ -157,6 +157,53 @@ class CSSOM:
     id_rules: dict[str, CSSRule]    # ID selectors
 ```
 
+### Attachment
+Computes styles for DOM nodes using CSSOM.
+Traverses the DOM tree, computes style for each DOM node.
+For each DOM node, first, universal styles are applied, then tag-based styles are applied (if any).
+Later class-based styles are applied in the order of the classes (if any) and finally id-based styles are applied (if any).
+Previous values are overridden by new values for properties in each step.
+
+Only supported styles are finally extracted. Checks for supported values for properties, if not overridden with default styles.
+Then inheritance is resolved, ie, if value is inherit, parent's style is used (note parent's style is known by traversal order)
+
+```python
+class DOMNode:
+    styles: dict[str, str]  # Computed styles for DOMNode
+```
+
+### Renderer
+Constructs render tree from DOM tree, consisting of nodes (called `render objects`) that will be rendered.
+Traverses the DOM tree in a pre-order depth first manner to construct render tree.
+DOM Nodes (and their children) with `display: none` are not added to render tree.
+Render Tree consist of render objects of types RenderBlock (for DOMNode with `display: block`), 
+RenderInline (for DOMNode with `display: inline`) and RenderText (for TextNode).
+RenderInline cannot have RenderBlocks as children, if in that case, RenderBlock is moved up the tree to become sibling of the RenderInline 
+(or its ancestor whose parent is a RenderBlock).
+RenderInline can only contain other RenderInline or RenderTexts as children.
+RenderBlocks with `position: fixed` are moved up the tree to become the children of the `html` RenderBlock (the viewport).
+RenderBlocks with `position: absolute` are moved up the tree till they become children of positioned RenderBlocks (position is `relative`, `fixed` or `absolute`).
+Note `html` RenderBlock is always positioned (`position: relative`).
+If any RenderBlock contains a mixture of RenderBlocks and other render objects, Anonymous RenderBlocks (RenderBlocks with no associated DOMNode in the DOM tree)
+are introduced in the render tree to make sure that RenderBlocks only have either RenderBlocks or non RenderBlocks as children. 
+Refer `renderer.py` for more details.
+
+```python
+class RenderBlock:
+    node: DOMNode
+    parent: RenderBlock
+    children: Union[List[RenderBlock], List[Union[RenderInline, RenderText]]]
+
+class RenderInline:
+    node: DOMNode
+    parent: Union[RenderBlock, RenderInline]
+    children: List[Union[RenderInline, RenderText]]
+
+class RenderText:
+    node: TextNode
+    parent: Union[RenderBlock, RenderInline]
+```
+
 ### Additional Resources
 - [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/)
 - [Kruno: How browsers work | JSUnconf 2017](https://www.youtube.com/watch?v=0IsQqJ7pwhw)
