@@ -1,5 +1,71 @@
 # A Browser Rendering Engine in Python
 
+## INTRODUCTION
+This project implements a simplified browser rendering engine in python.
+Uses pygame as the UI backend for painting and layout (of text).
+
+![Sample Image](sample.png)
+
+The project only supports a limited subset of HTML and CSS. 
+
+### HTML
+- All elements must be either self-closing or have start and end tags
+- Supports comments and doctype declaration.
+- Supports text
+- Supports only `id` and `class` attributes, and ignores remaining.
+    - element can have multiple classes (space separated list)
+- Does not support different tag contexts (like _script_)
+- Tag names can be anything. 
+    - However by default elements with unknown tags have `display: none`.
+    - `display` property must be set in user style sheets for other elements.
+- Handles some amount of missing/erroneous end tags
+ 
+### CSS
+
+- Supports multiple CSS files.
+- Browser (default) styles are defined in `agent.css`
+- Only simple selectors are supported 
+    - universal, tag, id and class selectors (eg, `*`, `div`, `.class`, `#id`). 
+- Each CSS rule must have only one selector
+- Supports Cascading, Specificity and Inheritance.
+    - Specificity is limited by selectors supported
+- Supported CSS properties can be found at `css_properties.py`.
+    - box-model properties: 
+    `margin-top`, `margin-bottom`, `margin-left`, `margin-right`,
+    `padding-top`, `padding-bottom`, `padding-left`, `padding-right`,
+    `border-top-width`, `border-bottom-width`, `border-bottom-left`, `border-bottom-right`,
+    `width`, `height`, `top`, `bottom`, `left`, `right`.
+    - colors: `color`, `background-color`, `border-color`
+    - fonts: `font-size`, `font-weight`, `font-style`
+    - layout: `display`, `position`
+- Supports `display` types of `none`, `block` and `inline`
+- Supports `position` types of `static`, `relative`, `absolute` and `fixed`.
+- Box model properties can be specified as `auto`, or in pixels `px` or in percentage `%`
+- Colors (`color`, `background-color`, `border-color`) must be in RGB (eg, `#ffffff`). 
+    - `background-color` can also be `transparent`
+- `font-size` must be in pixels `px`. `font-weight` can be `normal` or `bold`. 
+  `font-style` can be `normal` or `italic`
+- Some properties can be inherited (value is `inherit`). 
+    - `color`, `background-color`, `border-color`, `font-size`, `font-weight`, `font-style`
+
+## SETUP
+
+Needs python 3.8 or above.
+
+Install dependencies using:
+
+    pip install -r requirements.txt
+
+Run the program using
+    
+    python main.py --html index.html --css index.css
+
+For more options
+
+    python main.py --help
+
+Note: Program supports multiple CSS files.
+
 
 ### Additional Resources
 - [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/)
