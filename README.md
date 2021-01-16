@@ -133,6 +133,30 @@ class TextNode:
 ```
 
 
+### CSS Parser
+Parses style sheets (typically multiple) and constructs a CSS Object Model or CSSOM.
+CSS Rules are extracted from the files top to bottom and in the order in which files are listed to support cascading.
+CSS Rule consist of a selector and a map of css property and value (to simplify property overriding).
+CSSOM maintains a unique CSS Rule for each selector. 
+Properties from CSS Rules parsed later override the former (cascading). 
+To simplify specificity model, CSS Rules are organized into different maps based on selector types
+(universal, tag based, id based and class based) in CSSOM.
+Browser CSS (`agent.css`) is first parsed to define default styles. And user's style sheets override them later.
+To simply parsing, comments are removed from CSS before top-down parsing.
+
+```python
+class CSSRule:
+    selector: str
+    declarations: dict[str, str]    # css property name to value
+
+class CSSOM:
+    # CSS rules grouped based on selector
+    universal_rule: CSSRule # selector '*'
+    tag_rules: dict[str, CSSRule]   # Tag selectors
+    class_rules: dict[str, CSSRule] # Class selectors
+    id_rules: dict[str, CSSRule]    # ID selectors
+```
+
 ### Additional Resources
 - [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/)
 - [Kruno: How browsers work | JSUnconf 2017](https://www.youtube.com/watch?v=0IsQqJ7pwhw)
