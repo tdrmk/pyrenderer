@@ -9,6 +9,7 @@ Uses pygame as the UI backend for painting and layout (of text).
 The project only supports a limited subset of HTML and CSS. 
 
 ### HTML
+
 - All elements must be either self-closing or have start and end tags
 - Supports comments and doctype declaration.
 - Supports text
@@ -65,6 +66,47 @@ For more options
     python main.py --help
 
 Note: Program supports multiple CSS files.
+
+## Implementation Details
+
+A Modern Browser has several major components each performing different functions. 
+Rendering Engine is one of them which parses HTML and CSS and displays it onto the screen.
+Different browsers use different rendering engines, like firefox uses Gecko, etc. 
+
+Rendering typically involves the following steps:
+1. Constructing a DOM tree from HTML, enriching the styles from CSS
+2. Constructing a render tree, consisting of nodes that will we displayed on the screen.
+3. Computing the layout of the render tree, ie, computing the sizes and positions of the nodes on the screen.
+4. Painting the render tree onto the screen.
+
+These steps are performed by different sub-components of the rendering engine.
+Following are the sub-components of this simplified rendering engine:
+1. HTML Parser
+2. CSS Parser
+3. Attachment
+4. Renderer
+5. Layout
+6. Paint
+
+### HTML Parser
+Parses HTML contents and generates a DOM tree.
+It consists of a tokenizer and a parser
+
+Tokenizer converts the HTML content into a stream of token of different kinds.
+Tokens are identified using regular expressions. 
+Token kinds are start tags, end tags, self-closing tags, text, comments, doctype and spaces.
+Comments, doctype and spaces tokens are ignored. Rest are used to construct the DOM tree. 
+Start tag and self-closing tag tokens also have attributes (map of key-value pairs) extracted from HTML.
+
+Additionally, all tag names, attribute key-value pairs are converted into lower case. 
+Excessive spaces from text are also removed and text is trimmed.
+
+```python
+class Token:
+    kind: str   # type of token
+    value: str
+    attributes: dict[str, str]
+```
 
 
 ### Additional Resources
