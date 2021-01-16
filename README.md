@@ -92,11 +92,11 @@ Following are the sub-components of this simplified rendering engine:
 Parses HTML contents and generates a DOM tree.
 It consists of a tokenizer and a parser
 
-Tokenizer converts the HTML content into a stream of token of different kinds.
-Tokens are identified using regular expressions. 
+**Tokenizer** converts the HTML content into a stream of tokens of different kinds.
+Tokens are extracted using regular expressions. 
 Token kinds are start tags, end tags, self-closing tags, text, comments, doctype and spaces.
 Comments, doctype and spaces tokens are ignored. Rest are used to construct the DOM tree. 
-Start tag and self-closing tag tokens also have attributes (map of key-value pairs) extracted from HTML.
+Start tag and self-closing tag tokens can also have attributes (map of key-value pairs) extracted from HTML.
 
 Additionally, all tag names, attribute key-value pairs are converted into lower case. 
 Excessive spaces from text are also removed and text is trimmed.
@@ -106,6 +106,30 @@ class Token:
     kind: str   # type of token
     value: str
     attributes: dict[str, str]
+```
+
+
+**Parser** constructs DOM tree from the token stream. 
+Implementation uses algorithm similar to *Matching Parentheses Problem* (stack based algorithm).
+DOM tree consist of two type of nodes, `DOMNode` and `TextNode`.
+Current implementation does not distinguish different HTML elements and all are representing using `DOMNode`.
+`TextNode` contains text and can only be leaf nodes in the DOM tree.
+Only `id` and `class` attributes are currently utilized (for CSS selectors) and rest are ignored.
+Parser does not understand different contexts and different tags that are prescribed in the HTML W3 Standard to simplify implementation.
+User thus can define any tag name. However, the default browser styles assign `display: none` to unknown HTML elements (in attachment step).
+Parser expects end tag for each of the start tag.
+However implements error handling for missing close tags and erroneous closing tags.
+DOM nodes have parent and children properties to support bi-directional traversal of the tree.  
+```python
+class DOMNode:
+    parent: DOMNode
+    children: list[DOMNode]
+    id: str
+    classes: list[str]
+
+class TextNode:
+    parent: DOMNode
+    text: str
 ```
 
 
