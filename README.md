@@ -272,6 +272,24 @@ class BoxModel:
     left: int
     right: int
 ```
+
+### Paint
+
+Draws the render objects in the render tree onto the screen.
+RenderBlocks in the render tree are drawn in a in-order depth first order.
+While drawing a RenderBlock first border and background is drawn (at computed positions in box model), 
+followed by its children. 
+When the RenderBlock contains no RenderBlock children, text within is drawn word by word, line by line, 
+as determined in the layout phase.
+
+Note during initial traversal, only RenderBlocks with positions `static` and `relative` are drawn.
+When there are no more such blocks to draw, RenderBlocks with position `absolute` are drawn 
+(along with its children) in the same traversal order.
+Finally RenderBlocks with position `fixed` are drawn (with its children) when no other block to draw.
+This ordering makes sure that RenderBlocks with positions `fixed` and `absolute` are drawn on top RenderBlocks
+with positions `static` and `relative`.
+Refer `paint.py` for the complete algorithm.
+
 ## Additional Resources
 - [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/)
 - [Kruno: How browsers work | JSUnconf 2017](https://www.youtube.com/watch?v=0IsQqJ7pwhw)
