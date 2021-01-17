@@ -67,6 +67,8 @@ For more options
 
 Note: Program supports multiple CSS files.
 
+Use arrow keys (←, ↑, →, ↓) to scroll the page.
+
 ## Implementation Details
 
 A Modern Browser has several major components each performing different functions. 
