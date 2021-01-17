@@ -204,7 +204,75 @@ class RenderText:
     parent: Union[RenderBlock, RenderInline]
 ```
 
-### Additional Resources
+### Layout
+Renderer constructs a render tree with render objects that will be renderer on the screen. Layout computes the sizes
+and positions of the render objects for Paint to draw them onto the screen.
+
+RenderBlocks are drawn as boxes (or rectangles) on the screen. 
+Sizes (or Box Model Properties) are computed based on CSS properties and available content area 
+(parent's content width and content height). 
+Positions are absolute positions (x, y coordinates) at which boxes will be drawn on the screen.
+
+Box Model consist of padding, margin, border, width and height.
+
+Layout computes the box model properties of RenderBlocks by traversing the render tree in a pre-order depth first traversal.
+Box model properties of HTML RenderBlock (the viewport) is computed based on screen width and height.
+Box model properties like padding, border, margin and width are computed based on available width (determined by parent RenderBlock) 
+and the specified CSS property value.
+Height, when `auto`, is computed based on the height requirements of the children, otherwise is computed based on available height 
+(determined by the parent RenderBlock).
+Note padding, border and margin, including the ones on the top and bottom, are only dependent on the available width.
+When the property values are in pixels `px` then they are used, if they are percentage `%`, 
+the values are computed with respect to available width (or available height in case of height).
+
+Height of RenderBlocks which contains no RenderBlocks can be computed by calculating the height required to render the text.
+All RenderTexts within such RenderBlocks are extracted (and we determine their font based on `font-size`, `font-weight` and `font-style`).
+We then break the texts within into words (and compute the width, height they will occupy). 
+We then try to accommodate as words as possible into a line based on available width, 
+move the words to the next line if line width exceeds available width. 
+We can then determine the number of lines text will occupy and height the text will occupy, 
+and determine the height of the parent RenderBlock.
+In the implementation, word is represented as WordObject and line as LineObject, and all the lines within a RenderBlock as RenderLines
+(Refer `text_layout.py` for more details).
+
+Note positions of positioned (position `relative`, `absolute`, `fixed`) RenderBlocks are computed after computing the heights of parent RenderBlock.
+
+Note if parent RenderBlock's height is `auto`(ie, depends on children height), and current RenderBlock's height is in '%'(ie, depends on parent height).
+The RenderBlock's height is also convert to `auto`.
+
+In the implementation, Relative positions of children (with respect to its parent) are computed in the layout phase.
+Absolute positions are computed in the paint phase.
+
+```python
+class RenderBlock:
+    box_model: BoxModel
+
+class BoxModel:
+    # box model properties
+    padding_left: int
+    padding_right: int
+    padding_top: int
+    padding_bottom: int
+    
+    border_left: int
+    border_right: int
+    border_top: int
+    border_bottom: int
+    
+    margin_left: int
+    margin_right: int
+    margin_top: int
+    margin_bottom: int
+    
+    # content area for children
+    content_width: int
+    content_height: int    
+    
+    # positioning
+    left: int
+    right: int
+```
+## Additional Resources
 - [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/)
 - [Kruno: How browsers work | JSUnconf 2017](https://www.youtube.com/watch?v=0IsQqJ7pwhw)
 - [Ryan Seddon: So how does the browser actually render a website | JSConf EU 2015](https://www.youtube.com/watch?v=SmE4OwHztCc)
